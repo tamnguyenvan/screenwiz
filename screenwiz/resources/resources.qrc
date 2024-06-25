@@ -1,0 +1,37 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+    <qresource>
+        <file>icons/export.svg</file>
+        <file>icons/padding.svg</file>
+        <file>icons/border.svg</file>
+
+        <file>icons/prev.svg</file>
+        <file>icons/play.svg</file>
+        <file>icons/next.svg</file>
+        <file>icons/pause.svg</file>
+
+        <file>icons/cut.svg</file>
+        <file>icons/scale.svg</file>
+
+        <file>icons/clip.svg</file>
+        <file>icons/clock.svg</file>
+
+        <file>icons/add.svg</file>
+        <file>icons/cursor.svg</file>
+        <file>icons/zoom.svg</file>
+        <file>icons/mouse.svg</file>
+        <file>icons/trash.svg</file>
+
+        <file>icons/ar_1_1.svg</file>
+        <file>icons/ar_3_4.svg</file>
+        <file>icons/ar_4_3.svg</file>
+        <file>icons/ar_9_16.svg</file>
+        <file>icons/ar_16_9.svg</file>
+        <file>icons/ar_auto.svg</file>
+
+        <file>images/cursor/linux/cursor.png</file>
+        <file>images/cursor/linux/pointinghand.png</file>
+
+        <file>icons/background.svg</file>
+    </qresource>
+</RCC>

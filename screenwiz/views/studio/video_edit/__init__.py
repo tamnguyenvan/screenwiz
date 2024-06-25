@@ -1,0 +1,1 @@
+from views.studio.video_edit.video_edit import VideoEdit

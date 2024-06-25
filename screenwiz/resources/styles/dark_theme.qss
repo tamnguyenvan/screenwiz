@@ -1,0 +1,30 @@
+QWidget {
+    background-color: #2e2e2e;
+    color: #ffffff;
+}
+
+QPushButton {
+    background-color: #3a3a3a;
+    border: 1px solid #555555;
+    color: #ffffff;
+    padding: 5px;
+}
+
+QPushButton:hover {
+    background-color: #444444;
+}
+
+QSlider::groove:horizontal {
+    border: 1px solid #999999;
+    height: 8px;
+    background: #3a3a3a;
+    margin: 2px 0;
+}
+
+QSlider::handle:horizontal {
+    background: #2a82da;
+    border: 1px solid #5c5c5c;
+    width: 18px;
+    margin: -2px 0;
+    border-radius: 3px;
+}
