@@ -2,17 +2,20 @@ from PySide6.QtGui import QMouseEvent
 from PySide6.QtWidgets import QVBoxLayout, QHBoxLayout, QLabel, QWidget
 
 from utils.context_utils import AppContext
+from config import config
 
 
 class Timeline(QWidget):
     def __init__(self, video_len=0, pixels_per_second=200, parent=None):
         super().__init__(parent=parent)
 
+        self.config = config['objects']['timeline']
+
         self.video_len = video_len
         self.pixels_per_second = pixels_per_second
         self.video_len_int = int(video_len) + 1
 
-        self.setFixedHeight(40)
+        self.setFixedHeight(self.config['height'])
         self.init_ui()
 
         AppContext.get('view_model').on_video_len_changed.connect(self.update_video_len)

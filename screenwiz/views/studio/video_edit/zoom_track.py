@@ -2,27 +2,30 @@ from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel
 )
 from PySide6.QtGui import QMouseEvent, QCursor, QPainterPath, QPainter, QColor, QAction, QIcon
-from PySide6.QtCore import Qt, QPoint, QRectF, Signal
+from PySide6.QtCore import QEvent, Qt, QPoint, QRectF, Signal
 
 from views.widgets.icon import Icon
 from views.widgets.custom_context_menu import CustomContextMenu
 from utils.context_utils import AppContext
+from config import config
 
 
 class ZoomTrack(QWidget):
     on_deleted = Signal(int)
     on_deleted_all = Signal(bool)
 
-    def __init__(self, index, size, drag_range, parent=None):
+    def __init__(self, index, size, geometry_range, parent=None):
         super().__init__(parent=parent)
 
-        self.index = index
-        self.drag_range = drag_range
+        self.config = config['objects']['zoom_track']
 
-        self.border_radius = 10
+        self.index = index
+        self.geometry_range = geometry_range
+
+        self.border_radius = self.config['border_radius']
+        self.strip_width = self.config['strip_width']
         self.color = QColor('#3B25D1')
         self.strip_color = QColor('#5A46E2')
-        self.strip_width = 12
         self.setMouseTracking(True)
         self.setFixedSize(size)
 
@@ -103,38 +106,10 @@ class ZoomTrack(QWidget):
         painter.drawPath(path_right)
 
     def contextMenuEvent(self, event):
-        # context_menu = QMenu(self)
-        # context_menu.setStyleSheet("""
-        #     QMenu {
-        #         background-color: #2d2d30;
-        #         border: 1px solid #3a3a3e;
-        #         padding: 5px;
-        #         border-radius: 8px;
-        #     }
-        #     QMenu::item {
-        #         background-color: transparent;
-        #         padding: 8px 20px;
-        #         color: #ffffff;
-        #         font-size: 14px;
-        #         border-radius: 4px;
-        #     }
-        #     QMenu::item:selected {
-        #         background-color: #4d5057;
-        #     }
-        #     QMenu::icon {
-        #         padding-right: 10px;
-        #     }
-        # """)
-        # delete_action = QAction(QIcon(':/icons/trash.svg'), "Delete", self)
-        # delete_all_action = QAction(QIcon(':/icons/trash.svg'), "Delete all", self)
-
-        # delete_action.triggered.connect(self.delete_track)
-        # delete_all_action.triggered.connect(self.delete_all_tracks)
-
-        # context_menu.addAction(delete_action)
-        # context_menu.addAction(delete_all_action)
-        # context_menu.exec(event.globalPos())
-        context_menu = CustomContextMenu(self)
+        context_menu = CustomContextMenu(
+            item_padding='10px 20px',
+            parent=self
+        )
         delete_action = QAction(QIcon(':/icons/trash.svg'), "Delete", self)
         delete_all_action = QAction(QIcon(':/icons/trash.svg'), "Delete all", self)
 
@@ -170,16 +145,23 @@ class ZoomTrack(QWidget):
 
         if self.dragging:
             new_x = (event.globalPosition().toPoint() - self.dragging_offset).x()
-            updated_data = [self.index, new_x, self.width()]
 
+            # Ensure new_x is within geometry_range
+            print('1111', new_x, self.width(), self.geometry_range[0], self.geometry_range[1])
+            if new_x < self.geometry_range[0]:
+                new_x = self.geometry_range[0]
+            elif new_x + self.width() > self.geometry_range[1]:
+                new_x = self.geometry_range[1] - self.width()
+
+            updated_data = [self.index, new_x, self.width()]
             AppContext.get('view_model').update_zoom_tracks(updated_data)
+
         elif self.resizing:
             self.resize_rectangle(event.globalPosition().toPoint())
 
     def mouseReleaseEvent(self, event: QMouseEvent):
-        if event.button() == Qt.LeftButton:
-            self.dragging = False
-            self.resizing = False
+        self.dragging = False
+        self.resizing = False
 
     def resize_rectangle(self, global_pos):
         if self.resize_direction == 'left':
@@ -188,6 +170,11 @@ class ZoomTrack(QWidget):
             new_width = self.width() - diff
 
             if new_width >= 50:
+                if new_x < self.geometry_range[0]:
+                    new_x = self.geometry_range[0]
+                elif new_x + new_width > self.geometry_range[1]:
+                    new_x = self.geometry_range[1] - new_width
+
                 self.resizing_offset = global_pos
 
                 updated_data = [self.index, new_x, new_width]
@@ -196,12 +183,19 @@ class ZoomTrack(QWidget):
         elif self.resize_direction == 'right':
             diff = global_pos.x() - self.resizing_offset.x()
             new_width = self.width() + diff
+
             if new_width >= 50:
-                # self.setFixedSize(new_width, self.height())
+                if self.x() + new_width > self.geometry_range[1]:
+                    new_width = self.geometry_range[1] - self.x()
+
                 self.resizing_offset = global_pos
 
                 updated_data = [self.index, self.x(), new_width]
                 AppContext.get('view_model').update_zoom_tracks(updated_data)
+
+    def set_geometry_range(self, geometry_range):
+        self.geometry_range = geometry_range
+        print('new geo', geometry_range)
 
     def delete_track(self):
         AppContext.get('view_model').delete_track(self.index)

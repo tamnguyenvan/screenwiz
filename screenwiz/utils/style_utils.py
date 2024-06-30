@@ -1,5 +1,5 @@
 
-__all__ = ['apply_theme']
+# __all__ = ['apply_theme']
 
 
 def apply_theme(app, theme='dark'):

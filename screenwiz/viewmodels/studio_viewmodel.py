@@ -1,5 +1,6 @@
 import numpy as np
 from PySide6.QtCore import QObject, Signal, QThread
+from config import config
 
 
 class StudioViewModel(QObject):
@@ -39,6 +40,12 @@ class StudioViewModel(QObject):
         zoom_track_data = mouse_events['click']
         self.on_zoom_tracks_changed.emit(zoom_track_data)
 
+    def update_aspect_ratio(self, value):
+        self.model.update_aspect_ratio(value)
+
+        if not self.video_thread.is_running():
+            self.current_frame()
+
     def update_padding(self, value):
         self.model.update_padding(value)
         self.on_padding_changed.emit(self.model.padding)
@@ -73,7 +80,7 @@ class StudioViewModel(QObject):
         self.on_frame_changed.emit(frame)
 
         # Calculate the desired position of the time slider and emit a signal
-        pixels_per_second = 200
+        pixels_per_second = self.model.pixels_per_second
         frame_index = self.model.current_frame_index()
         x_pos = frame_index / self.model.fps * pixels_per_second
         self.on_timeslider_position_changed.emit(x_pos)
@@ -84,7 +91,7 @@ class StudioViewModel(QObject):
         self.on_frame_changed.emit(frame)
 
         # Calculate the desired position of the time slider and emit a signal
-        pixels_per_second = 200
+        pixels_per_second = self.model.pixels_per_second
         frame_index = self.model.current_frame_index()
         x_pos = frame_index / self.model.fps * pixels_per_second
         self.on_timeslider_position_changed.emit(x_pos)
@@ -106,7 +113,7 @@ class StudioViewModel(QObject):
             is_running = True
             self.video_thread.stop()
 
-        pixels_per_second = 200
+        pixels_per_second = self.model.pixels_per_second
         frame_index = int(x_pos / pixels_per_second * self.model.fps)
         self.read_frame(frame_index)
 
@@ -118,7 +125,7 @@ class StudioViewModel(QObject):
 
     def update_zoom_tracks(self, data):
         index, x_pos, width = data
-        pixels_per_second = 200
+        pixels_per_second = self.model.pixels_per_second
         frame_index = x_pos / pixels_per_second * self.model.fps
         duration = width / pixels_per_second
 
@@ -129,7 +136,7 @@ class StudioViewModel(QObject):
 
     def insert_zoom_track(self, data):
         x_pos, width = data
-        pixels_per_second = 200
+        pixels_per_second = self.model.pixels_per_second
         frame_index = x_pos / pixels_per_second * self.model.fps
         duration = width / pixels_per_second
 
@@ -150,6 +157,9 @@ class StudioViewModel(QObject):
 
         if not self.video_thread.is_running():
             self.current_frame()
+
+    def get_pixels_per_second(self):
+        return self.model.pixels_per_second
 
 
 class VideoThread(QThread):

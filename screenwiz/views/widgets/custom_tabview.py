@@ -1,13 +1,17 @@
+from functools import partial
+
 from PySide6.QtWidgets import (
     QVBoxLayout, QStackedLayout,
-    QPushButton, QHBoxLayout, QFrame
+    QWidget, QPushButton, QHBoxLayout, QFrame
 )
 from PySide6.QtCore import Signal
 
 
 class CustomTabView(QFrame):
-    def __init__(self, pages=[], parent=None):
+    def __init__(self, button_texts=[], pages=[], parent=None):
         super().__init__(parent)
+
+        assert len(button_texts) == len(pages)
 
         self.pages = pages
 
@@ -16,7 +20,7 @@ class CustomTabView(QFrame):
         layout.setSpacing(10)
 
         # Tabbar
-        self.tabbar = TabBar(self)
+        self.tabbar = TabBar(button_texts=button_texts, parent=self)
         self.tabbar.on_switched.connect(self.switch_tab)
         layout.addWidget(self.tabbar)
 
@@ -42,14 +46,15 @@ class CustomTabView(QFrame):
                 self.tabbar.buttons[i].update_stylesheet()
 
 
-class TabBar(QFrame):
+class TabBar(QWidget):
     on_switched = Signal(int)
 
-    def __init__(self, parent=None):
+    def __init__(self, button_texts, parent=None):
         super().__init__(parent=parent)
 
+        self.button_texts = button_texts
+
         self.init_ui()
-        self.setObjectName('tabbar')
         self.setStyleSheet('''
             #tabbar {
                 border: 1px solid #4d5057;
@@ -63,42 +68,20 @@ class TabBar(QFrame):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
 
-        self.wallpaper_button = CustomTabButton('Wallpaper')
-        self.wallpaper_button.clicked.connect(lambda: self.on_switched.emit(0))
-        self.wallpaper_button.set_active()
+        self.buttons = []
+        for index, text in enumerate(self.button_texts):
+            button = CustomTabButton(text)
+            # button.clicked.connect(lambda index=index: self.on_switched.emit(index))
+            button.clicked.connect(partial(self.on_switched.emit, index))
 
-        self.gradient_button = CustomTabButton('Gradient')
-        self.gradient_button.clicked.connect(lambda: self.on_switched.emit(1))
+            if index == 0:
+                button.set_active()
 
-        self.color_button = CustomTabButton('Color')
-        self.color_button.clicked.connect(lambda: self.on_switched.emit(2))
+            self.buttons.append(button)
 
-        self.image_button = CustomTabButton('Image')
-        self.image_button.clicked.connect(lambda: self.on_switched.emit(3))
-
-        self.buttons = [
-            self.wallpaper_button,
-            self.gradient_button,
-            self.color_button,
-            self.image_button,
-        ]
-
-        layout.addWidget(self.wallpaper_button)
-        # layout.addWidget(self.create_divider())
-        layout.addWidget(self.gradient_button)
-        # layout.addWidget(self.create_divider())
-        layout.addWidget(self.color_button)
-        # layout.addWidget(self.create_divider())
-        layout.addWidget(self.image_button)
-
+            layout.addWidget(button)
 
         self.setLayout(layout)
-
-    def create_divider(self):
-        divider = QFrame()
-        divider.setFrameShape(QFrame.VLine)
-        divider.setObjectName('line')
-        return divider
 
 
 class CustomTabButton(QPushButton):

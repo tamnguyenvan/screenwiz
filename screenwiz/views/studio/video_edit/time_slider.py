@@ -3,6 +3,7 @@ from PySide6.QtGui import QMouseEvent
 from PySide6.QtCore import Qt, QPoint, Signal
 
 from utils.context_utils import AppContext
+from config import config
 
 
 class TimeSlider(QWidget):
@@ -11,8 +12,11 @@ class TimeSlider(QWidget):
         super().__init__(parent=parent)
 
         self.color = '#321eba'
+        self.config = config['objects']['time_slider']
 
-        self.setFixedSize(16, 220)
+        width = self.config['width']
+        height = self.config['height']
+        self.setFixedSize(width, height)
         self.init_ui()
 
         AppContext.get('view_model').on_timeslider_position_changed.connect(self.update_position)

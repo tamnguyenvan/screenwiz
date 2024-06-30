@@ -7,24 +7,24 @@ from PySide6.QtCore import Qt, QSize, QRectF
 from views.widgets.icon import Icon
 from views.widgets.color_widget import ColorWidget
 from utils.context_utils import AppContext
-
-
-pixels_per_second = 200
+from config import config
 
 
 class ClipTrack(QWidget):
     def __init__(self, size=None, parent=None):
         super().__init__(parent=parent)
 
+        self.config = config['objects']['clip_track']
+
         if size is None:
             size = QSize(0, 60)
         elif isinstance(size, (tuple, list)):
             size = QSize(*size)
 
-        self.border_radius = 10
+        self.strip_width = self.config['strip_width']
+        self.border_radius = self.config['border_radius']
         self.color = QColor('#7B530E')
         self.strip_color = QColor('#A56D0B')
-        self.strip_width = 12
 
         self.setFixedSize(size)
 
@@ -104,6 +104,8 @@ class ClipTrack(QWidget):
         AppContext.get('view_model').update_slider_position(x_pos)
 
     def update_clip_width(self, video_len):
+        pixels_per_second = AppContext.get('view_model').get_pixels_per_second()
+
         new_width = int(video_len * pixels_per_second)
         self.setFixedWidth(new_width)
         self.init_ui()

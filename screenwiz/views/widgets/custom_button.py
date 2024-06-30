@@ -16,59 +16,42 @@ class CustomButton(QPushButton):
         parent=None,
         **kwargs
     ):
-        super().__init__(parent)
+        super().__init__(text, parent)
 
         # Ensure at least an icon or text is provided
         if not icon and not text:
             raise ValueError('Either an icon or text must be provided.')
 
-        self.icon_path = icon if isinstance(icon, str) else None
         self.icon_size = icon_size
         self.text = text
         self.orientation = orientation
 
-        self.init_ui(icon, text)
+        if icon:
+            self.setIcon(QIcon(icon))
+            self.setIconSize(QSize(*icon_size))
 
-        # Apply custom styles
+        self.setMinimumSize(self.calculate_minimum_size())
         self.apply_styles(kwargs)
 
-    def init_ui(self, icon, text):
+    def calculate_minimum_size(self):
+        icon_width, icon_height = self.icon_size
+        text_width = self.fontMetrics().boundingRect(self.text).width()
+        text_height = self.fontMetrics().height()
+
         if self.orientation == 'horizontal':
-            layout = QHBoxLayout()
+            min_width = icon_width + text_width + 10  # 10 for spacing
+            min_height = max(icon_height, text_height)
         else:
-            layout = QVBoxLayout()
+            min_width = max(icon_width, text_width)
+            min_height = icon_height + text_height + 10  # 10 for spacing
 
-        self.spacing = 5
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(self.spacing)
-
-        self.icon_label = None
-        self.text_label = None
-
-        if icon:
-            # TODO:
-            self.icon_label = QLabel()
-            if isinstance(icon, str):
-                pixmap = QPixmap(icon)
-                self.icon_label.setPixmap(pixmap.scaled(self.icon_size[0], self.icon_size[1], Qt.KeepAspectRatio, Qt.SmoothTransformation))
-            else:
-                self.icon_label.setPixmap(icon.pixmap(self.icon_size[0], self.icon_size[1]))
-            self.icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            layout.addWidget(self.icon_label)
-
-        if text:
-            self.text_label = QLabel(text)
-            layout.addWidget(self.text_label)
-
-        layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.setLayout(layout)
+        return QSize(min_width, min_height)
 
     def apply_styles(self, styles):
         background_color = styles.get('background_color', '#4f46e5')
         text_color = styles.get('text_color', '#FFFFFF')
-        padding = styles.get('padding', '0')
         font_size = styles.get('font_size', 14)
-        font_weight = styles.get('font_weight', 400)
+        padding = styles.get('padding', '0 0')
         border = styles.get('border', 'none')
         border_radius = styles.get('border_radius', 5)
         hover_style = styles.get('hover', {'background_color': '#4338ca', 'text_color': '#FFFFFF'})
@@ -89,17 +72,11 @@ class CustomButton(QPushButton):
             background-color: {hover_background_color};
             color: {hover_text_color};
         }}
-        QLabel {{
-            color: {text_color};
-            font-size: {font_size}px;
-            font-weight: {font_weight};
-        }}
+        QPushButton:
         '''
 
         self.setStyleSheet(stylesheet)
 
-        # shadow
-        # Create drop shadow effect
         if box_shadow:
             offset = box_shadow.get('offset', (5, 5))
             radius = box_shadow.get('radius', 20)
@@ -108,48 +85,15 @@ class CustomButton(QPushButton):
             shadow.setOffset(*offset)
             shadow.setBlurRadius(radius)
             shadow.setColor(QColor(*color))
-
-            # Apply drop shadow effect to the button
             self.setGraphicsEffect(shadow)
 
-        # Set size policy to MinimumExpanding to allow the button to grow as needed
-        self.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
-
-        icon_size = 26
-        if self.icon_label:
-            self.icon_label.setPixmap(QIcon(self.icon_path).pixmap(icon_size, icon_size))
-
-        if self.icon_label:
-            icon_size_hint = self.icon_label.sizeHint()
-            icon_label_size = (icon_size_hint.width(), icon_size_hint.height())
-        else:
-            icon_label_size = (0, 0)
-
-        if self.text_label:
-            text_size_hint = self.text_label.sizeHint()
-            text_label_size = (text_size_hint.width(), text_size_hint.height())
-        else:
-            text_label_size = (0, 0)
-
-        if self.orientation == 'horizontal':
-            self.setMinimumSize(
-                icon_label_size[0] + text_label_size[0] + self.spacing,
-                max(icon_label_size[1], text_label_size[1])
-            )
-        else:
-            self.setMinimumSize(
-                max(icon_label_size[0], text_label_size[0]),
-                icon_label_size[1] + text_label_size[1] + self.spacing
-            )
+        self.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
 
     def set_icon(self, icon: str):
         self.icon_path = icon if isinstance(icon, str) else None
-        if self.icon_label:
-            if isinstance(icon, str):
-                pixmap = QPixmap(icon)
-                self.icon_label.setPixmap(pixmap.scaled(self.icon_size[0], self.icon_size[1], Qt.KeepAspectRatio, Qt.SmoothTransformation))
-            else:
-                self.icon_label.setPixmap(icon.pixmap(self.icon_size[0], self.icon_size[1]))
+
+        self.setIcon(QIcon(icon))
+        self.setIconSize(QSize(*self.icon_size))
 
 
 class RoundedImageButton(QPushButton):
@@ -158,10 +102,10 @@ class RoundedImageButton(QPushButton):
         self.pixmap = QPixmap(path)
         self.border_radius = border_radius
 
-        if isinstance(size, (list, tuple)):
-            size = QSize(*size)
+        # if isinstance(size, (list, tuple)):
+        #     size = QSize(*size)
 
-        self.setFixedSize(size)
+        # self.setFixedSize(size)
 
         self.init_ui()
 
@@ -187,6 +131,15 @@ class RoundedImageButton(QPushButton):
         painter.drawPixmap(0, 0, self.width(), self.height(), self.pixmap)
 
         # Borders
-        painter.setPen(QPen(Qt.darkGray, 4))
+        painter.setPen(QPen(Qt.darkGray, 2))
         painter.setBrush(Qt.NoBrush)
         painter.drawPath(path)
+
+    def resizeEvent(self, event):
+        # Resize the pixmap when the button is resized
+        self.pixmap = self.pixmap.scaled(self.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        self.update()  # Trigger a repaint
+
+    def sizeHint(self):
+        # Return the preferred size of the button based on the pixmap size
+        return self.pixmap.size()

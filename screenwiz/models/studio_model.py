@@ -4,18 +4,21 @@ import cv2
 
 from models import transforms
 from utils.general import find_largest_leq_sorted
+from config import config
 
 
 class StudioModel:
     def __init__(self, video_path: str = None):
         self.video_path = video_path
         self.video_path = '/home/tamnv/Downloads/upwork-contract-exporter.mp4'
+
         self.load()
 
     def load(self):
         self.video_controller = VideoController(video_path=self.video_path)
 
         # Settings
+        self.aspect_ratio = 'Auto'
         self.padding = 100
         self.inset = 10
         self.border_radius = 50
@@ -23,8 +26,8 @@ class StudioModel:
         # Transforms
         self.mouse_events = {
             'click': [
-                {'x': 0.5, 'y': 0.5, 'frame_index': 200, 'duration': 1.5},
-                {'x': 0.5, 'y': 0.5, 'frame_index': 280, 'duration': 1.5},
+                {'x': 0.5, 'y': 0.5, 'frame_index': 50, 'duration': 1.5},
+                {'x': 0.5, 'y': 0.5, 'frame_index': 150, 'duration': 1.5},
             ],
             'move': []
         }
@@ -40,6 +43,7 @@ class StudioModel:
         })
         self.video_len = self.video_controller.video_len
         self.fps = self.video_controller.fps
+        self.pixels_per_second = config['layout']['video_edit']['pixels_per_second']
 
     def read(self, frame_index=None):
         frame = self.video_controller.read(frame_index)
@@ -67,6 +71,10 @@ class StudioModel:
     def prev_frame(self):
         prev_frame_index = max(0, self.video_controller.frame_index - 1)
         return self.read(prev_frame_index)
+
+    def update_aspect_ratio(self, value):
+        self.aspect_ratio = value
+        self.transform['aspect_ratio'] = transforms.AspectRatio(aspect_ratio=value)
 
     def update_padding(self, value):
         self.padding = value
@@ -103,8 +111,7 @@ class StudioModel:
         self._clean_delete_click_data()
 
         x_pos = data['x_pos']
-        pixels_per_second = 200
-        frame_index = x_pos / pixels_per_second * self.video_controller.fps
+        frame_index = x_pos / self.pixels_per_second * self.video_controller.fps
 
         # Find position for the new track
         frame_indices = [item['frame_index'] for item in self.mouse_events['click']]

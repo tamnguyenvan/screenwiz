@@ -1,0 +1,14 @@
+{
+    "window": {
+        "width": 1024,
+        "height": 768
+    },
+    "appearance": {
+        "theme": "dark",
+        "font": "Arial"
+    },
+    "user": {
+        "username": "stg_user",
+        "language": "en"
+    }
+}

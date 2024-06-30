@@ -12,16 +12,20 @@ from views.studio.video_edit.clip_track import ClipTrack
 from views.studio.video_edit.zoom_track import ZoomTrack
 from views.studio.video_edit.hover_zoom_track import HoverZoomTrack
 from utils.context_utils import AppContext
-
-
-pixels_per_second = 200
+from config import config
 
 
 class VideoEdit(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
 
-        self.setFixedHeight(250)
+        self.config = config['layout']['video_edit']
+        self.timeline_config = config['objects']['timeline']
+        self.zoom_track_config = config['objects']['zoom_track']
+        self.hover_zoom_track_config = config['objects']['hover_zoom_track']
+        self.clip_track_config = config['objects']['clip_track']
+
+        self.setFixedHeight(self.config['height'])
         self.init_ui()
 
         self.zoom_tracks = OrderedDict()
@@ -70,22 +74,12 @@ class VideoEdit(QWidget):
 
     def _init_clip_track(self, parent):
         self.clip_track = ClipTrack(parent=parent)
-        self.clip_track.move(0, 80)
+        self.clip_track.move(0, self.clip_track_config['y'])
 
-    # def _init_zoom_tracks(self, parent):
-    #     zoom_track_list = [1]
-
-    #     self.zoom_tracks = []
-
-    #     for item in zoom_track_list:
-    #         size = QSize(500, 60)
-    #         zoom_track = ZoomTrack(size=size, parent=parent)
-    #         zoom_track.move(500, 150)
-    #         self.zoom_tracks.append(zoom_track)
     def _init_hover_zoom_track(self, parent):
-        self.hover_zoom_track = HoverZoomTrack(parent=parent)
+        self.hover_zoom_track = HoverZoomTrack(parent=parent, border_radius=self.hover_zoom_track_config['border_radius'])
         self.hover_zoom_track.setVisible(False)
-        self.hover_zoom_track.move(0, 150)
+        self.hover_zoom_track.move(0, self.hover_zoom_track_config['y'])
 
     def _init_time_indicator(self, parent):
         self.time_indicator = TimeIndicator(parent=parent)
@@ -93,19 +87,14 @@ class VideoEdit(QWidget):
         self.time_indicator.move(0, 0)
 
     def update_content_width(self, video_len):
+        pixels_per_second = AppContext.get('view_model').get_pixels_per_second()
         new_width = int(video_len * pixels_per_second) + 100
         self.content_widget.setFixedWidth(new_width)
 
     def update_zoom_tracks(self, zoom_track_data):
-        drag_minimum_x = 0
         fps = AppContext.get('view_model').fps()
+        pixels_per_second = AppContext.get('view_model').get_pixels_per_second()
 
-        # for i, zoom_track in self.zoom_tracks.items():
-        #     zoom_track.deleteLater()
-
-        # self.zoom_tracks = OrderedDict()
-
-        # for i, item in enumerate(zoom_track_data):
         new_zoom_track_data = []
         for index, item in enumerate(zoom_track_data):
             frame_index = item['frame_index']
@@ -133,32 +122,60 @@ class VideoEdit(QWidget):
                 x_pos = item['x_pos']
             else:
                 x_pos = int(frame_index / fps * pixels_per_second)
-            size = QSize(width, 60)
+            size = QSize(width, self.zoom_track_config['height'])
 
             # Calculate the drag range
+            geometry_min_x = 0
+            if index > 0:
+                prev_zoom_track = zoom_track_data[index - 1]
+                if 'x_pos' in prev_zoom_track:
+                    prev_zoom_track_x = prev_zoom_track['x_pos']
+                else:
+                    prev_zoom_track_x = int(prev_zoom_track['frame_index'] / fps * pixels_per_second)
+
+                if 'widht' in prev_zoom_track:
+                    prev_zoom_track_width = prev_zoom_track['width']
+                else:
+                    prev_zoom_track_width = int(prev_zoom_track['duration'] * pixels_per_second)
+
+                geometry_min_x = prev_zoom_track_x + prev_zoom_track_width
+
             if index + 1 < len(zoom_track_data):
                 next_zoom_track = zoom_track_data[index + 1]
-                drag_maximum_x = int(next_zoom_track['frame_index'] / fps * pixels_per_second)
+                if 'x_pos' in next_zoom_track:
+                    geometry_max_x = next_zoom_track['x_pos']
+                else:
+                    geometry_max_x = int(next_zoom_track['frame_index'] / fps * pixels_per_second)
             else:
-                drag_maximum_x = 1e6
+                geometry_max_x = 1e6
 
             if index not in self.zoom_tracks:
+                print('original', geometry_min_x, geometry_max_x)
                 zoom_track = ZoomTrack(
                     index=index,
                     size=size,
-                    drag_range=[drag_minimum_x, drag_maximum_x],
+                    geometry_range=[geometry_min_x, geometry_max_x],
                     parent=self.content_widget
                 )
             else:
                 zoom_track = self.zoom_tracks[index]
+                zoom_track.set_geometry_range([geometry_min_x, geometry_max_x])
                 zoom_track.setFixedSize(size)
 
             zoom_track.setVisible(True)
-            zoom_track.move(x_pos, 150)
+            zoom_track.move(x_pos, self.zoom_track_config['y'])
 
             self.zoom_tracks[index] = zoom_track
 
     def update_mouse_areas(self, zoom_track_data):
+        """_summary_
+
+        Parameters
+        ----------
+        zoom_track_data : _type_
+            _description_
+        """
+        pixels_per_second = AppContext.get('view_model').get_pixels_per_second()
         prev_x = 0
 
         for mouse_area in self.mouse_areas:
@@ -201,12 +218,15 @@ class VideoEdit(QWidget):
             mouse_area_width = x_pos - prev_x
             if mouse_area_width <= 0:
                 # TODO: remove it
-                pass
+                continue
 
-            mouse_area = ZoomTrackMouseArea(parent=self.content_widget)
-            mouse_area.setVisible(True)
-            mouse_area.setFixedSize(mouse_area_width, 60)
-            mouse_area.move(prev_x, 150)
+            mouse_area = ZoomTrackMouseArea(
+                size=(mouse_area_width, self.zoom_track_config['height']),
+                parent=self.content_widget
+            )
+            # mouse_area.setVisible(True)
+            # mouse_area.setFixedSize(mouse_area_width, self.zoom_track_config['height'])
+            mouse_area.move(prev_x, self.zoom_track_config['y'])
             mouse_area.on_left.connect(self.hide_hover_zoom_track)
             mouse_area.on_clicked.connect(self.add_zoom_track)
             mouse_area.on_mouse_moved.connect(self.show_hover_zoom_track)
@@ -218,23 +238,26 @@ class VideoEdit(QWidget):
 
         # Last mouse area
         last_x = 1e6
-        mouse_area = ZoomTrackMouseArea(parent=self.content_widget)
         mouse_area_width = last_x - prev_x
-        mouse_area.setVisible(True)
-        mouse_area.setFixedSize(mouse_area_width, 60)
-        mouse_area.move(prev_x, 150)
+        mouse_area = ZoomTrackMouseArea(
+            size=(mouse_area_width, self.zoom_track_config['height']),
+            parent=self.content_widget)
+        # mouse_area.setVisible(True)
+        # mouse_area.setFixedSize(mouse_area_width, self.zoom_track_config['height'])
+        mouse_area.move(prev_x, self.zoom_track_config['y'])
         mouse_area.on_left.connect(self.hide_hover_zoom_track)
         mouse_area.on_clicked.connect(self.add_zoom_track)
         mouse_area.on_mouse_moved.connect(self.show_hover_zoom_track)
         self.mouse_areas.append(mouse_area)
 
         # for i, area in enumerate(self.mouse_areas):
-        #     print('mouse ', i, area.size())
-        # print('len mouse areas', len(self.mouse_areas))
+        #     print('mouse ', i, area.x(), area.width(), area.height())
 
     def add_zoom_track(self, pos):
+        pixels_per_second = AppContext.get('view_model').get_pixels_per_second()
         x_pos = pos.x()
-        width = 200
+        duration = self.hover_zoom_track_config['duration']
+        width = int(duration * pixels_per_second)
 
         # Check valid
 
@@ -244,7 +267,7 @@ class VideoEdit(QWidget):
 
     def show_hover_zoom_track(self, pos):
         self.hover_zoom_track.setVisible(True)
-        self.hover_zoom_track.move(pos.x(), 150)
+        self.hover_zoom_track.move(pos.x(), self.hover_zoom_track_config['y'])
 
         self.time_indicator.setVisible(True)
         self.time_indicator.move(pos.x(), 0)

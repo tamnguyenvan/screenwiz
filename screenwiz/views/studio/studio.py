@@ -6,19 +6,28 @@ from views.studio.topbar import TopBar
 from views.studio.video_preview import VideoPreview
 from views.studio.sidebar import SideBar
 from views.studio.video_edit import VideoEdit
+from views.widgets.color_widget import ColorWidget
 from utils.context_utils import AppContext
+from config import config
 
 
-class StudioWindow(QWidget):
+class StudioWindow(ColorWidget):
     def __init__(self, view_model=None, parent=None):
         super().__init__(parent=parent)
-        self.view_model = view_model
+
+        self.setObjectName('studio')
+
+        AppContext.set('view_model', view_model)
 
         self.init_ui()
         self.load()
 
+        minimum_size = (
+            config['window']['minimum_width'],
+            config['window']['minimum_height']
+        )
         self.setWindowTitle('ScreenWiz')
-        self.setMinimumSize(800, 600)
+        self.setMinimumSize(*minimum_size)
         self.showMaximized()
 
     def init_ui(self):

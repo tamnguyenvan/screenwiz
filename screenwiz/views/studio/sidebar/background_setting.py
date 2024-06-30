@@ -39,13 +39,16 @@ class BackgroundSetting(QWidget):
         title_layout.addStretch(1)
 
         # custom tabview
+        button_texts = ['Wallpaper', 'Gradient', 'Color', 'Image']
         pages = [
             WallpaperPage(),
             GradientPage(),
             ColorPage(),
             ImagePage(),
         ]
-        tabview = CustomTabView(pages=pages)
+        tabview = CustomTabView(
+            button_texts=button_texts,
+            pages=pages)
 
         main_layout.addLayout(title_layout)
         main_layout.addWidget(tabview)
@@ -71,8 +74,8 @@ class WallpaperPage(QWidget):
         # layout
         main_layout = QGridLayout()
         main_layout.setContentsMargins(0, 0, 0, 0)
-        main_layout.setHorizontalSpacing(4)
-        main_layout.setVerticalSpacing(10)
+        main_layout.setHorizontalSpacing(8)
+        main_layout.setVerticalSpacing(5)
 
         items_per_row = 7
         for i in range(20):
@@ -122,8 +125,8 @@ class ColorPage(QWidget):
     def init_ui(self):
         grid_layout = QGridLayout()
         grid_layout.setContentsMargins(0, 0, 0, 0)
-        grid_layout.setHorizontalSpacing(5)
-        grid_layout.setVerticalSpacing(2)
+        grid_layout.setHorizontalSpacing(8)
+        grid_layout.setVerticalSpacing(5)
         self.setLayout(grid_layout)
 
         for i, color in enumerate(self.colors):
@@ -143,7 +146,8 @@ class ColorButton(QPushButton):
         if isinstance(size, (list, tuple)):
             size = QSize(*size)
 
-        self.setFixedSize(size)
+        # self.setFixedSize(size)
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.init_ui()
 
         self.clicked.connect(self.update_wallpaper)
@@ -152,6 +156,7 @@ class ColorButton(QPushButton):
         self.setStyleSheet(f'''
         background-color: {self.color};
         border: 1px solid darkgray;
+        border-radius: 2px;
         ''')
 
     def update_wallpaper(self):

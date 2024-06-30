@@ -1,14 +1,17 @@
 from PySide6.QtWidgets import QWidget, QLabel
 
+from config import config
+
 
 class TimeIndicator(QWidget):
-    def __init__(self, color='white', parent=None):
+    def __init__(self, color='#323440', parent=None):
         super().__init__(parent=parent)
 
+        self.config = config['objects']['time_indicator']
         self.color = color
 
-        width = 16
-        height = 220
+        width = self.config['width']
+        height = self.config['height']
 
         self.setFixedSize(width, height)
 

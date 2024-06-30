@@ -1,0 +1,67 @@
+{
+    "app": {
+        "name": "ScreenWiz",
+        "author": "Tam Nguyen"
+    },
+    "window": {
+        "minimum_width": 1024,
+        "minimum_height": 768
+    },
+    "appearance": {
+        "theme": "dark",
+        "font": "Arial"
+    },
+    "layout": {
+        "topbar": {
+            "height": 50
+        },
+        "video_preview": {
+            "minimum_width": 500
+        },
+        "sidebar": {
+            "width": 450
+        },
+        "video_edit": {
+            "height": 250,
+            "pixels_per_second": 200
+        }
+    },
+    "objects": {
+        "time_indicator": {
+            "width": 16,
+            "height": 220
+        },
+        "time_slider": {
+            "width": 16,
+            "height": 220
+        },
+        "timeline": {
+            "y": 0,
+            "height": 40
+        },
+        "clip_track": {
+            "y": 80,
+            "height": 60,
+            "strip_width": 12,
+            "border_radius": 10
+        },
+        "zoom_track": {
+            "y": 150,
+            "height": 60,
+            "strip_width": 12,
+            "border_radius": 10
+        },
+        "hover_zoom_track": {
+            "y": 150,
+            "border_radius": 10,
+            "duration": 1,
+            "height": 60
+        },
+        "zoom_track_mouse_area": {
+            "minimum_duration": 1
+        }
+    },
+    "output": {
+        "default_output_dir": "~/Videos/ScreenWiz"
+    }
+}

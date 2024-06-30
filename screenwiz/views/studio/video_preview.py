@@ -20,7 +20,7 @@ class VideoPreview(QWidget):
         # Main layout
         main_layout = QVBoxLayout()
         main_layout.setContentsMargins(0, 0, 0, 0)
-        main_layout.setSpacing(0)
+        main_layout.setSpacing(5)
 
         # Top toolbar
         top_toolbar = VideoTopToolBar()
@@ -116,12 +116,7 @@ class VideoTopToolBar(QWidget):
         self.setLayout(layout)
 
     def change_aspect_ratio(self, aspect_ratio):
-        # model = AppContext.get('model')
-        # model.set_aspect_ratio(aspect_ratio)
-        # frame = model.current_frame
-
-        # AppContext.get('video_toolbar').display_frame(frame)
-        pass
+        AppContext.get('view_model').update_aspect_ratio(aspect_ratio)
 
 
 class VideoToolBar(QWidget):

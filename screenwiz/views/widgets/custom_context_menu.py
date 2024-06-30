@@ -4,39 +4,50 @@ from PySide6.QtCore import QRectF
 
 
 class CustomContextMenu(QMenu):
-    def __init__(self, *args, **kwargs):
-        super(CustomContextMenu, self).__init__()
-        self.radius = 10
+    def __init__(
+        self,
+        menu_color='#3e3e3e',
+        menu_border='1px solid #3e3e3e',
+        menu_border_radius=10,
+        menu_padding=8,
+        item_padding='16px 20px',
+        item_color='white',
+        item_font_size=14,
+        item_border_radius=4,
+        item_selected_color='#4d5057',
+        icon_padding_right=10,
+        parent=None
+    ):
+        super().__init__(parent=parent)
 
-        self.setStyleSheet(f'''
+        self.menu_border_radius = menu_border_radius
+
+        style = f'''
             QMenu {{
-                background-color: #3e3e3e;
-                border: 1px solid #3a3a3e;
-                padding: 5px;
-                border-radius: {self.radius}px;
+                background-color: {menu_color};
+                border: {menu_border};
+                padding: {menu_padding}px;
+                border-radius: {menu_border_radius}px;
             }}
             QMenu::item {{
                 background-color: transparent;
-                padding: 8px 20px;
-                color: #ffffff;
-                font-size: 14px;
-                border-radius: 4px;
+                padding: {item_padding};
+                color: {item_color};
+                font-size: {item_font_size}px;
+                border-radius: {item_border_radius}px;
             }}
             QMenu::item:selected {{
-                background-color: #4d5057;
+                background-color: {item_selected_color};
             }}
             QMenu::icon {{
-                padding-right: 10px;
+                padding-right: {icon_padding_right}px;
             }}
-        ''')
+        '''
+        self.setStyleSheet(style)
 
     def resizeEvent(self, event):
         path = QPainterPath()
-        # the rectangle must be translated and adjusted by 1 pixel in order to
-        # correctly map the rounded shape
         rect = QRectF(self.rect()).adjusted(.5, .5, -1.5, -1.5)
-        path.addRoundedRect(rect, self.radius, self.radius)
-        # QRegion is bitmap based, so the returned QPolygonF (which uses float
-        # values must be transformed to an integer based QPolygon
+        path.addRoundedRect(rect, self.menu_border_radius, self.menu_border_radius)
         region = QRegion(path.toFillPolygon(QTransform()).toPolygon())
         self.setMask(region)
