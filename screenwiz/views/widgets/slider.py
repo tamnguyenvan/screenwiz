@@ -3,7 +3,7 @@ from PySide6.QtWidgets import QSlider
 from PySide6.QtGui import QWheelEvent
 
 
-class CustomSlider(QSlider):
+class SWSlider(QSlider):
     def __init__(
         self,
         orientation=Qt.Orientation.Horizontal,
@@ -46,8 +46,8 @@ class CustomSlider(QSlider):
             }}
 
             QSlider::handle:horizontal:pressed {{
-                background-color: lightgray;
-                border: 1px solid lightgray;
+                background-color: #E8EAED;
+                border: 1px solid #E8EAED;
             }}
         """)
 

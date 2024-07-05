@@ -7,7 +7,7 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Signal
 
 
-class CustomTabView(QFrame):
+class SWTabView(QFrame):
     def __init__(self, button_texts=[], pages=[], parent=None):
         super().__init__(parent)
 

@@ -21,6 +21,7 @@ class StudioViewModel(QObject):
 
     # Zoom tracks
     on_zoom_tracks_changed = Signal(tuple)
+    zoom_track_selected = Signal(int)
 
     def __init__(self, model):
         super().__init__()
@@ -151,6 +152,9 @@ class StudioViewModel(QObject):
     def delete_all_tracks(self):
         new_zoom_tracks = self.model.delete_all_tracks()
         self.on_zoom_tracks_changed.emit(new_zoom_tracks)
+
+    def select_zoom_track(self, index):
+        self.zoom_track_selected.emit(index)
 
     def update_wallpaper(self, data):
         self.model.update_wallpaper(data)

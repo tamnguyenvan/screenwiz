@@ -2,9 +2,9 @@ from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QSizePo
 from PySide6.QtGui import QPixmap, QImage
 from PySide6.QtCore import Qt
 
-from views.widgets.custom_button import CustomButton
+from views.widgets.button import SWButton
 from views.widgets.aspect_ratio_image import AspectRatioImage
-from views.widgets.custom_dropdown import DropDown
+from views.widgets.dropdown import SWDropDown
 from utils.context_utils import AppContext
 
 
@@ -108,7 +108,7 @@ class VideoTopToolBar(QWidget):
             '1:1',
             '3:4',
         ]
-        self.drop_down = DropDown(items=items, parent=self)
+        self.drop_down = SWDropDown(items=items, parent=self)
         self.drop_down.clicked.connect(self.drop_down.show_menu)
         self.drop_down.value_changed.connect(self.change_aspect_ratio)
 
@@ -139,20 +139,23 @@ class VideoToolBar(QWidget):
         group_layout_1.setContentsMargins(0, 0, 0, 0)
         group_layout_1.setSpacing(5)
 
-        self.prev_button = CustomButton(
+        self.prev_button = SWButton(
             icon=':/icons/prev.svg',
+            icon_size=(30, 30),
             background_color='transparent',
-            hover={'background_color': 'transparent'}
+            hover_background_color='transparent'
         )
-        self.play_button = CustomButton(
+        self.play_button = SWButton(
             icon=':/icons/play.svg',
+            icon_size=(30, 30),
             background_color='transparent',
-            hover={'background_color': 'transparent'}
+            hover_background_color='transparent'
         )
-        self.next_button = CustomButton(
+        self.next_button = SWButton(
             icon=':/icons/next.svg',
+            icon_size=(30, 30),
             background_color='transparent',
-            hover={'background_color': 'transparent'}
+            hover_background_color='transparent'
         )
 
         self.play_button.clicked.connect(view_model.toggle_playing_video)
@@ -168,15 +171,17 @@ class VideoToolBar(QWidget):
         group_layout_2.setContentsMargins(0, 0, 0, 0)
         group_layout_2.setSpacing(5)
 
-        prev_button = CustomButton(
+        prev_button = SWButton(
             icon=':/icons/cut.svg',
+            icon_size=(26, 26),
             background_color='transparent',
-            hover={'background_color': 'transparent'}
+            hover_background_color='transparent'
         )
-        play_button = CustomButton(
+        play_button = SWButton(
             icon=':/icons/scale.svg',
+            icon_size=(30, 30),
             background_color='transparent',
-            hover={'background_color': 'transparent'}
+            hover_background_color='transparent'
         )
 
         group_layout_2.addWidget(prev_button)

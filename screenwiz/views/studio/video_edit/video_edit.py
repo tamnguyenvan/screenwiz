@@ -3,7 +3,7 @@ from collections import OrderedDict
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout
 from PySide6.QtCore import Qt, QSize
 
-from views.widgets.custom_scrollarea import CustomScrollArea
+from views.widgets.scroll_area import SWScrollArea
 from views.widgets.mouse_area import MouseArea, ZoomTrackMouseArea
 from views.studio.video_edit.timeline import Timeline
 from views.studio.video_edit.time_indicator import TimeIndicator
@@ -20,10 +20,10 @@ class VideoEdit(QWidget):
         super().__init__(parent=parent)
 
         self.config = config['layout']['video_edit']
-        self.timeline_config = config['objects']['timeline']
-        self.zoom_track_config = config['objects']['zoom_track']
-        self.hover_zoom_track_config = config['objects']['hover_zoom_track']
-        self.clip_track_config = config['objects']['clip_track']
+        self.timeline_config = config['elements']['timeline']
+        self.zoom_track_config = config['elements']['zoom_track']
+        self.hover_zoom_track_config = config['elements']['hover_zoom_track']
+        self.clip_track_config = config['elements']['clip_track']
 
         self.setFixedHeight(self.config['height'])
         self.init_ui()
@@ -42,7 +42,7 @@ class VideoEdit(QWidget):
         main_layout.setSpacing(0)
 
         # Wrap everything in a scroll area
-        scroll_area = CustomScrollArea()
+        scroll_area = SWScrollArea()
         scroll_area.setWidgetResizable(True)
 
         # Content widget
@@ -101,6 +101,7 @@ class VideoEdit(QWidget):
 
             is_deleted = item.get('delete', False)
             if is_deleted and index in self.zoom_tracks:
+                self.zoom_tracks[index].hide()
                 self.zoom_tracks[index].deleteLater()
                 del self.zoom_tracks[index]
                 continue
@@ -108,6 +109,12 @@ class VideoEdit(QWidget):
             new_zoom_track_data.append(item)
 
         zoom_track_data = new_zoom_track_data
+        new_zoom_tracks = OrderedDict()
+        for index, zoom_track in enumerate(self.zoom_tracks.values()):
+            zoom_track.index = index
+            new_zoom_tracks[index] = zoom_track
+
+        self.zoom_tracks = new_zoom_tracks
 
         for index, item in enumerate(zoom_track_data):
             frame_index = item['frame_index']
@@ -133,7 +140,7 @@ class VideoEdit(QWidget):
                 else:
                     prev_zoom_track_x = int(prev_zoom_track['frame_index'] / fps * pixels_per_second)
 
-                if 'widht' in prev_zoom_track:
+                if 'width' in prev_zoom_track:
                     prev_zoom_track_width = prev_zoom_track['width']
                 else:
                     prev_zoom_track_width = int(prev_zoom_track['duration'] * pixels_per_second)
@@ -150,7 +157,6 @@ class VideoEdit(QWidget):
                 geometry_max_x = 1e6
 
             if index not in self.zoom_tracks:
-                print('original', geometry_min_x, geometry_max_x)
                 zoom_track = ZoomTrack(
                     index=index,
                     size=size,

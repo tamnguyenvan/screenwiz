@@ -5,8 +5,8 @@ from PySide6.QtWidgets import (
 from PySide6.QtGui import QPixmap, Qt
 from PySide6.QtCore import QSize
 
-from views.widgets.custom_tabview import CustomTabView
-from views.widgets.custom_button import RoundedImageButton
+from views.widgets.tabview import SWTabView
+from views.widgets.button import SWButton, RoundedImageButton
 from utils.context_utils import AppContext
 
 
@@ -46,7 +46,7 @@ class BackgroundSetting(QWidget):
             ColorPage(),
             ImagePage(),
         ]
-        tabview = CustomTabView(
+        tabview = SWTabView(
             button_texts=button_texts,
             pages=pages)
 
@@ -87,7 +87,7 @@ class WallpaperPage(QWidget):
 
 
 class WallpaperThumbnailButton(RoundedImageButton):
-    def __init__(self, index, size=(50, 50), parent=None):
+    def __init__(self, index, size=None, parent=None):
         self.path = f'/home/tamnv/Projects/exp/screenwiz/screenwiz/resources/images/wallpaper/thumbnail/gradient-wallpaper-{index:04d}.png'
         super().__init__(path=self.path, size=size, parent=parent)
 
@@ -147,7 +147,7 @@ class ColorButton(QPushButton):
             size = QSize(*size)
 
         # self.setFixedSize(size)
-        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
         self.init_ui()
 
         self.clicked.connect(self.update_wallpaper)
@@ -155,8 +155,7 @@ class ColorButton(QPushButton):
     def init_ui(self):
         self.setStyleSheet(f'''
         background-color: {self.color};
-        border: 1px solid darkgray;
-        border-radius: 2px;
+        border-radius: 8px;
         ''')
 
     def update_wallpaper(self):
@@ -171,4 +170,21 @@ class ImagePage(QWidget):
         self.init_ui()
 
     def init_ui(self):
-        pass
+        layout = QHBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+
+        self.button = SWButton(
+            text='Upload',
+            icon=':/icons/add.svg',
+            icon_size=(30, 30),
+            border='2px dotted #cccccc',
+            background_color='transparent',
+            hover_background_color='transparent',
+            border_radius=4
+        )
+        self.button.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+
+        layout.addWidget(self.button)
+
+        self.setLayout(layout)

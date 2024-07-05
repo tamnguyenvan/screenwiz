@@ -35,8 +35,8 @@ class ZoomTrackMouseArea(MouseArea):
     def __init__(self, size=QSize(), visible=True, parent=None):
         super().__init__(parent=parent)
 
-        self.config = config['objects']['zoom_track_mouse_area']
-        self.hover_zoom_track_duration = config['objects']['hover_zoom_track']['duration']
+        self.config = config['elements']['zoom_track_mouse_area']
+        self.hover_zoom_track_duration = config['elements']['hover_zoom_track']['duration']
 
         pixels_per_seconds = AppContext.get('view_model').get_pixels_per_second()
         self.minimum_width = int(self.hover_zoom_track_duration * pixels_per_seconds)
@@ -62,7 +62,7 @@ class ZoomTrackMouseArea(MouseArea):
         if self.enabled:
             x_pos = event.position().toPoint()
             remain_x = self.width() - x_pos.x()
-            print('remain', remain_x)
+
             if remain_x < self.minimum_width:
                 x_pos = QPoint(self.width() - self.minimum_width, event.y())
 

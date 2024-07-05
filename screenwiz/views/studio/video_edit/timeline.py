@@ -9,7 +9,7 @@ class Timeline(QWidget):
     def __init__(self, video_len=0, pixels_per_second=200, parent=None):
         super().__init__(parent=parent)
 
-        self.config = config['objects']['timeline']
+        self.config = config['elements']['timeline']
 
         self.video_len = video_len
         self.pixels_per_second = pixels_per_second

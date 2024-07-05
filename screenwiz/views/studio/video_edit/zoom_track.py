@@ -1,7 +1,7 @@
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel
 )
-from PySide6.QtGui import QMouseEvent, QCursor, QPainterPath, QPainter, QColor, QAction, QIcon
+from PySide6.QtGui import QMouseEvent, QCursor, QPainterPath, QPainter, QColor, QAction, QIcon, QPen
 from PySide6.QtCore import QEvent, Qt, QPoint, QRectF, Signal
 
 from views.widgets.icon import Icon
@@ -17,15 +17,17 @@ class ZoomTrack(QWidget):
     def __init__(self, index, size, geometry_range, parent=None):
         super().__init__(parent=parent)
 
-        self.config = config['objects']['zoom_track']
+        self.config = config['elements']['zoom_track']
 
         self.index = index
         self.geometry_range = geometry_range
 
         self.border_radius = self.config['border_radius']
         self.strip_width = self.config['strip_width']
-        self.color = QColor('#3B25D1')
-        self.strip_color = QColor('#5A46E2')
+        self.background_color = QColor('#255A7E')
+        self.color = '#ffffff'
+        self.border_color = QColor('transparent')
+        self.strip_color = QColor('#3586AB')
         self.setMouseTracking(True)
         self.setFixedSize(size)
 
@@ -71,12 +73,18 @@ class ZoomTrack(QWidget):
 
         self.setLayout(layout)
 
+        # self.setStyleSheet(f'''
+        # QLabel {{
+        #     color: {self.color};
+        # }}
+        # ''')
+
     def paintEvent(self, event):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
 
         # Draw the main rectangle with rounded corners
-        painter.setBrush(self.color)
+        painter.setBrush(self.background_color)
         painter.setPen(Qt.NoPen)
         rect = QRectF(0, 0, self.width(), self.height())
         painter.drawRoundedRect(rect, self.border_radius, self.border_radius)
@@ -104,6 +112,22 @@ class ZoomTrack(QWidget):
         path_right.closeSubpath()
         painter.setBrush(self.strip_color)
         painter.drawPath(path_right)
+
+        # Border
+        path_border = QPainterPath()
+        path_border.moveTo(self.strip_width, 0)
+        path_border.arcTo(QRectF(0, 0, 2 * self.border_radius, 2 * self.border_radius), 90, 90)
+        path_border.lineTo(0, self.height() - self.border_radius)
+        path_border.arcTo(QRectF(0, self.height() - 2 * self.border_radius, 2 * self.border_radius, 2 * self.border_radius), 180, 90)
+        path_border.lineTo(self.width() - self.strip_width, self.height())
+        path_border.arcTo(QRectF(self.width() - 2 * self.border_radius, self.height() - 2 * self.border_radius, 2 * self.border_radius, 2 * self.border_radius), 270, 90)
+        path_border.lineTo(self.width(), self.border_radius)
+        path_border.arcTo(QRectF(self.width() - 2 * self.border_radius, 0, 2 * self.border_radius, 2 * self.border_radius), 0, 90)
+        path_border.lineTo(self.width() - self.strip_width, 0)
+        path_border.closeSubpath()
+        painter.setBrush(Qt.NoBrush)
+        painter.setPen(QPen(self.border_color, 2))
+        painter.drawPath(path_border)
 
     def contextMenuEvent(self, event):
         context_menu = CustomContextMenu(
@@ -133,8 +157,13 @@ class ZoomTrack(QWidget):
                 self.resizing_offset = event.globalPosition().toPoint()
             else:
                 self.dragging = True
-                # self.dragging_offset = event.globalPosition().toPoint() - self.mapToGlobal(QPoint(0, 0))
                 self.dragging_offset = event.globalPosition().toPoint() - self.frameGeometry().topLeft()
+
+                # Change the border color
+                self.border_color = QColor('#ffffff')
+                AppContext.get('view_model').select_zoom_track(self.index)
+
+            self.update()
 
     def mouseMoveEvent(self, event: QMouseEvent):
         target_rect = QRectF(self.strip_width, 0, self.width() - 2 * self.strip_width, self.height())
@@ -147,7 +176,6 @@ class ZoomTrack(QWidget):
             new_x = (event.globalPosition().toPoint() - self.dragging_offset).x()
 
             # Ensure new_x is within geometry_range
-            print('1111', new_x, self.width(), self.geometry_range[0], self.geometry_range[1])
             if new_x < self.geometry_range[0]:
                 new_x = self.geometry_range[0]
             elif new_x + self.width() > self.geometry_range[1]:
@@ -195,7 +223,6 @@ class ZoomTrack(QWidget):
 
     def set_geometry_range(self, geometry_range):
         self.geometry_range = geometry_range
-        print('new geo', geometry_range)
 
     def delete_track(self):
         AppContext.get('view_model').delete_track(self.index)

@@ -33,5 +33,6 @@
         <file>images/cursor/linux/pointinghand.png</file>
 
         <file>icons/background.svg</file>
+        <file>icons/back.svg</file>
     </qresource>
 </RCC>

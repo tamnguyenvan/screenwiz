@@ -2,7 +2,7 @@ from PySide6.QtWidgets import QWidget, QScrollArea
 from PySide6.QtCore import Qt, QEvent
 
 
-class CustomScrollArea(QScrollArea):
+class SWScrollArea(QScrollArea):
     def __init__(self):
         super().__init__()
 

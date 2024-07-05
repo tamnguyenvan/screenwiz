@@ -2,7 +2,7 @@ from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel
 from PySide6.QtGui import QPixmap, Qt
 
 from utils.context_utils import AppContext
-from views.widgets.custom_slider import CustomSlider
+from views.widgets.slider import SWSlider
 
 
 class ShapeSetting(QWidget):
@@ -76,7 +76,7 @@ class BaseShapeSetting(QWidget):
         slider_layout.setContentsMargins(0, 0, 0, 0)
         slider_layout.setSpacing(5)
 
-        self.slider = CustomSlider()
+        self.slider = SWSlider()
         self.slider.setMaximum(self.slider_max)
         self.slider.setMinimum(self.slider_min)
         self.slider.setValue(self.slider_value)
@@ -108,7 +108,7 @@ class BaseShapeSetting(QWidget):
 
 class PaddingSetting(BaseShapeSetting):
     def __init__(self):
-        super().__init__('Padding', ':/icons/padding.svg', 500, 0, 50)
+        super().__init__('Padding', ':/icons/padding.svg', 500, 0, 100)
         view_model = AppContext.get('view_model')
         view_model.on_padding_changed.connect(self.on_value_changed)
 

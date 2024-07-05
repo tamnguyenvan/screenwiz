@@ -20,4 +20,12 @@ def load_config():
         return json.load(file)
 
 
+def load_theme(theme_file):
+    with open(theme_file) as file:
+        return json.load(file)
+
+
 config = load_config()
+default_theme = config['default_theme']
+theme_file = config['themes'][default_theme]
+config['theme'] = load_theme(theme_file)

@@ -1,0 +1,30 @@
+{
+    "primary_color": "#007bff",
+    "secondary_color": "#6c757d",
+    "background_color": "#ffffff",
+    "text_color": "#000000",
+    "window": {
+        "background_color": "#ffffff"
+    },
+    "button": {
+        "icon_size": [24, 24],
+        "text": "",
+        "font_size": 14,
+        "orientation": "horizontal",
+        "background_color": "red",
+        "text_color": "#ffffff",
+        "hover_background_color": "blue",
+        "hover_text_color": "white",
+        "padding": "0 0",
+        "border": "none",
+        "border_radius": 0,
+        "box_shadow": {}
+    },
+    "label": {
+        "text_color": "#000000"
+    },
+    "slider": {
+        "track_color": "#007bff",
+        "handle_color": "#007bff"
+    }
+}

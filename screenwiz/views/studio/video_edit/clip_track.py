@@ -14,7 +14,7 @@ class ClipTrack(QWidget):
     def __init__(self, size=None, parent=None):
         super().__init__(parent=parent)
 
-        self.config = config['objects']['clip_track']
+        self.config = config['elements']['clip_track']
 
         if size is None:
             size = QSize(0, 60)
@@ -23,8 +23,9 @@ class ClipTrack(QWidget):
 
         self.strip_width = self.config['strip_width']
         self.border_radius = self.config['border_radius']
-        self.color = QColor('#7B530E')
-        self.strip_color = QColor('#A56D0B')
+        self.background_color = QColor('#bb86fc')
+        self.color = '#ffffff'
+        self.strip_color = QColor('#457b9d')
 
         self.setFixedSize(size)
 
@@ -53,7 +54,8 @@ class ClipTrack(QWidget):
 
         clock_icon = Icon(':/icons/clock.svg')
 
-        bottom_row_layout.addWidget(QLabel('7s'))
+        self.duration_label = QLabel()
+        bottom_row_layout.addWidget(self.duration_label)
         bottom_row_layout.addWidget(clock_icon)
         bottom_row_layout.addWidget(QLabel('1x'))
 
@@ -62,12 +64,18 @@ class ClipTrack(QWidget):
 
         self.setLayout(layout)
 
+        self.setStyleSheet(f'''
+        QLabel {{
+            color: {self.color};
+        }}
+        ''')
+
     def paintEvent(self, event):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
 
         # Draw the main rectangle with rounded corners
-        painter.setBrush(self.color)
+        painter.setBrush(self.background_color)
         painter.setPen(Qt.NoPen)
         rect = QRectF(0, 0, self.width(), self.height())
         painter.drawRoundedRect(rect, self.border_radius, self.border_radius)
@@ -104,6 +112,8 @@ class ClipTrack(QWidget):
         AppContext.get('view_model').update_slider_position(x_pos)
 
     def update_clip_width(self, video_len):
+        self.duration_label.setText(f'{video_len:.1f}s')
+
         pixels_per_second = AppContext.get('view_model').get_pixels_per_second()
 
         new_width = int(video_len * pixels_per_second)

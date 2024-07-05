@@ -7,7 +7,7 @@ class TimeIndicator(QWidget):
     def __init__(self, color='#323440', parent=None):
         super().__init__(parent=parent)
 
-        self.config = config['objects']['time_indicator']
+        self.config = config['elements']['time_indicator']
         self.color = color
 
         width = self.config['width']

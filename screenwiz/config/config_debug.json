@@ -7,10 +7,11 @@
         "minimum_width": 1024,
         "minimum_height": 768
     },
-    "appearance": {
-        "theme": "dark",
-        "font": "Arial"
+    "themes": {
+        "light": "config/themes/light_theme.json",
+        "dark": "config/themes/dark_theme.json"
     },
+    "default_theme": "dark",
     "layout": {
         "topbar": {
             "height": 50
@@ -26,7 +27,7 @@
             "pixels_per_second": 200
         }
     },
-    "objects": {
+    "elements": {
         "time_indicator": {
             "width": 16,
             "height": 220

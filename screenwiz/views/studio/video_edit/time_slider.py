@@ -12,7 +12,7 @@ class TimeSlider(QWidget):
         super().__init__(parent=parent)
 
         self.color = '#321eba'
-        self.config = config['objects']['time_slider']
+        self.config = config['elements']['time_slider']
 
         width = self.config['width']
         height = self.config['height']

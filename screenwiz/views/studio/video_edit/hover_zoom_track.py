@@ -8,10 +8,10 @@ from config import config
 
 
 class HoverZoomTrack(ColorWidget):
-    def __init__(self, color='#5A46E2', border_radius=12, parent=None):
+    def __init__(self, color='#4234a3', border_radius=12, parent=None):
         super().__init__(parent=parent)
 
-        self.config = config['objects']['hover_zoom_track']
+        self.config = config['elements']['hover_zoom_track']
         self.color = color
         self.border_radius = border_radius
         self.duration = self.config['duration']

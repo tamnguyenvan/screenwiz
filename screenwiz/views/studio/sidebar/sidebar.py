@@ -1,9 +1,11 @@
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel
 
 from views.widgets.color_widget import ColorWidget
-from views.widgets.custom_scrollarea import CustomScrollArea
+from views.widgets.scroll_area import SWScrollArea
 from views.studio.sidebar.background_setting import BackgroundSetting
 from views.studio.sidebar.shape_setting import ShapeSetting
+from views.studio.sidebar.zoom_setting import ZoomSetting
+from utils.context_utils import AppContext
 
 
 class SideBar(ColorWidget):
@@ -12,35 +14,44 @@ class SideBar(ColorWidget):
 
         self.init_ui()
         self.setFixedWidth(500)
-        self.apply_styles()
+
+        AppContext.get('view_model').zoom_track_selected.connect(self.on_zoom_track_selected)
 
     def init_ui(self):
         # Main layout
-        main_layout = QHBoxLayout()
-        main_layout.setContentsMargins(10, 10, 10, 10)
-        main_layout.setSpacing(0)
+        self.main_layout = QHBoxLayout()
+        self.main_layout.setContentsMargins(10, 10, 10, 10)
+        self.main_layout.setSpacing(0)
 
         # Wrap content with a scroll area
-        scroll_area = CustomScrollArea()
-        scroll_area.setWidgetResizable(True)
+        self.scroll_area = SWScrollArea()
+        self.scroll_area.setWidgetResizable(True)
 
         # Content widget
-        content_widget = QWidget()
-        content_layout = QVBoxLayout(content_widget)
+        self.content_widget = QWidget()
+        content_layout = QVBoxLayout(self.content_widget)
 
         # Set content widget for the scroll area
-        scroll_area.setWidget(content_widget)
+        self.scroll_area.setWidget(self.content_widget)
 
         # Add sections to the content layout
         content_layout.addWidget(BackgroundSetting())
         content_layout.addWidget(ShapeSetting())
 
-        main_layout.addWidget(scroll_area)
+        self.main_layout.addWidget(self.scroll_area)
 
-        self.setLayout(main_layout)
+        self.setLayout(self.main_layout)
 
-    def apply_styles(self):
         self.setStyleSheet('''
         background-color: #131519;
         border-radius: 20px;
         ''')
+
+    def on_zoom_track_selected(self, index):
+        self.content_widget.deleteLater()
+
+        new_content_widget = QWidget()
+        new_content_layout = QVBoxLayout(new_content_widget)
+
+        new_content_layout.addWidget(ZoomSetting())
+        self.scroll_area.setWidget(new_content_widget)

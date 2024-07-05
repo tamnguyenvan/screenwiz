@@ -1,8 +1,10 @@
+import json
 from PySide6.QtWidgets import (
     QWidget, QHBoxLayout, QSizePolicy
 )
 
-from views.widgets.custom_button import CustomButton
+from views.widgets.button import SWButton
+from views.widgets.switch import SWSwitch
 from config import config
 from views.widgets.color_widget import ColorWidget
 
@@ -23,16 +25,15 @@ class TopBar(QWidget):
         main_layout.setSpacing(0)
 
         # Widgets
-        export_button = CustomButton(
+        export_button = SWButton(
             icon=':/icons/export.svg',
             icon_size=(24, 24),
             text='Export',
             border_radius=10,
-            font_size=14,
-            font_weight=400,
-            padding='8px 20px',
+            background_color='#4f46e5',
+            hover_background_color='#4338ca',
+            padding='8px'
         )
-        export_button.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
 
         # Add the widgets to main layout
         main_layout.addStretch(1)

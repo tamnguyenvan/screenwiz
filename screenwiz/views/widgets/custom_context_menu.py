@@ -9,7 +9,7 @@ class CustomContextMenu(QMenu):
         menu_color='#3e3e3e',
         menu_border='1px solid #3e3e3e',
         menu_border_radius=10,
-        menu_padding=8,
+        menu_padding='8px 20px',
         item_padding='16px 20px',
         item_color='white',
         item_font_size=14,
@@ -26,7 +26,7 @@ class CustomContextMenu(QMenu):
             QMenu {{
                 background-color: {menu_color};
                 border: {menu_border};
-                padding: {menu_padding}px;
+                padding: {menu_padding};
                 border-radius: {menu_border_radius}px;
             }}
             QMenu::item {{

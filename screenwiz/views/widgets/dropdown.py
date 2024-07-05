@@ -3,7 +3,7 @@ from PySide6.QtGui import QAction, QPainterPath, QRegion, QTransform, QIcon, QPi
 from PySide6.QtCore import QPoint, QRect, Signal
 
 from views.widgets.custom_context_menu import CustomContextMenu
-from views.widgets.custom_button import CustomButton
+from views.widgets.button import SWButton
 
 
 # class CustomMenu(QMenu):
@@ -33,14 +33,17 @@ from views.widgets.custom_button import CustomButton
 #         self.setMask(region)
 
 
-class DropDown(CustomButton):
+class SWDropDown(SWButton):
     value_changed = Signal(str)
 
     def __init__(self, items, parent=None):
         super().__init__(
             icon=':/icons/ar_auto.svg',
-            padding='16px 20px',
+            padding='8px 40px',
             text='Auto',
+            background_color='#2e2e2e',
+            hover_background_color='#212121',
+            border_radius=10,
             parent=parent
         )
         self.items = items
@@ -58,34 +61,6 @@ class DropDown(CustomButton):
             parent=self
         )
         self.populate_menu()
-        # self.init_ui()
-
-    def init_ui(self):
-        layout = QHBoxLayout()
-        layout.setContentsMargins(10, 10, 10, 10)
-        layout.setSpacing(10)
-
-        self.icon_label = QLabel()
-        pixmap = QPixmap(self.icons['Auto'])
-        self.icon_label.setPixmap(pixmap)
-        layout.addWidget(self.icon_label)
-
-        self.text_label = QLabel(self.items[0])
-        layout.addWidget(self.text_label)
-
-        container = QWidget()
-        container.setLayout(layout)
-
-        self.setLayout(layout)
-
-        self.setStyleSheet("""
-            QPushButton#dropdown {
-                padding: 16px 20px;
-                background-color: #3e3e3e;
-                border: 1px solid #3e3e3e;
-                border-radius: 10px;
-            }
-        """)
 
     def populate_menu(self):
         for item in self.items:
@@ -94,9 +69,6 @@ class DropDown(CustomButton):
             self.menu.addAction(action)
 
     def on_value_changed(self, text):
-        pixmap = QPixmap(self.icons[text])
-        # self.icon_label.setPixmap(QPixmap(pixmap))
-        # self.text_label.setText(text)
         self.setIcon(QIcon(self.icons[text]))
         self.setText(text)
         self.value_changed.emit(text)

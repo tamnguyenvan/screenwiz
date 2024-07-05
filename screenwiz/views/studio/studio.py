@@ -58,6 +58,9 @@ class StudioWindow(ColorWidget):
 
         self.setLayout(main_layout)
 
+        # style
+        self.setStyleSheet('background-color: #121212;')
+
     def load(self):
         # Load data and refresh the UI
         AppContext.get('view_model').load()
